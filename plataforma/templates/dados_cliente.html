@@ -1,0 +1,285 @@
+{% extends 'base_plataforma.html' %}
+{% load static %}
+
+{% block 'plataforma' %}
+
+    {% if messages %}
+        <br>
+        {% for message in messages %}
+            <div class="alert {{message.tags}}">
+                {{message}}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <br>
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <img src="{% static 'plataforma/img/perfil1.png' %}">
+        </div>
+
+        <div class="col-md-3 dados descricao">
+            <h4>{{ cliente.nome }}</h4>
+            <h4>{{ cliente.cpf }}</h4>
+            <h6>{{ cliente.telefone }}</h6>
+        </div>
+        
+    </div>
+    <hr>
+
+
+    <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal">
+        Adicionar dados do cliente
+    </button>
+    <br>
+    <br>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+            <th scope="col">Pai</th>
+            <th scope="col">Mae</th>
+            <!--th scope="col">% gordura</th-->
+            <th scope="col">Bairro</th>
+            <th scope="col">Cidade</th>
+            <th scope="col">UF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dados in dados_cliente %}
+                <tr>
+                    <th scope="row">{{ dados.pai }}</th>
+                    <!-- <th scope="row">{{ dados.pai }} Kg</th> -->
+                    <td>{{ dados.mae }}</td>
+                    <td>{{dados.bairro}}</td>
+                    <td>{{dados.cidade}}</td>
+                    <td>{{dados.uf}}</td>
+                </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+    
+    {% comment %} Ini Grafico - JS {% endcomment %}
+    <div style="width: 60%;">
+        <canvas id="myChart"></canvas>
+    </div>  
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    // {% comment %} fetch ::=> faz uma requisicao atravez de uma URL {% endcomment %}
+        fetch("/grafico_peso/{{cliente.id}}/",{
+            method: 'POST',
+        }).then(function(result){
+            return result.json()
+        }).then(function(data_paciente){
+           
+            const data = {
+                labels: data_paciente['labels'],
+                datasets: [{
+                label: 'Mae Cliente',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: data_paciente['peso'],
+                }]
+            };
+    
+            const config = {
+                type: 'line',
+                data: data,
+                options: {}
+            };
+    
+            const myChart = new Chart(
+                document.getElementById('myChart'),
+                config
+            );
+    
+    
+        })
+    
+    
+    
+    </script>
+    {% comment %} Fim Grafico {% endcomment %}
+
+        {% comment %} Ini Modal {% endcomment %}
+        <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <form action="{% url 'dados_cliente' cliente.id %}" method="POST">{% csrf_token %}
+                            <h4 class="titulo">Dados do cliente</h4>
+                            <div class="form-row">
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">Pai</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"  name="pai">
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">Kg</span> -->
+                                            </div>
+                                        </div>
+                                                                
+                                </div>
+    
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">Mãe</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"  name="mae">
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">cm</span> -->
+                                            </div>
+                                        </div>
+                                                                
+                                </div>
+    
+                                
+                            </div>
+                            <br>
+                            <div class="form-row">
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">Bairro</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"  name="bairro">
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">%</span> -->
+                                            </div>
+                                        </div>
+                                                                
+                                </div>
+    
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">Cidade</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"  name="cidade">
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">%</span> -->
+                                            </div>
+                                        </div>
+                                                                
+                                </div>
+    
+                                
+                            </div>
+                            <br>
+                            <h4 class="titulo">Dados Adicionais</h4>
+                            <div class="form-row">
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">UF</label>
+                                        <div class="input-group">
+                                            <!-- <input type="text" class="form-control"  name="uf"> -->
+
+                                            
+                                            <select name="uf" class="form-control">
+                                                <option value="Acre">Acre</option>
+                                                <option value="Alagoas">Alagoas</option>
+                                                <option value="Amapá">Amapá</option>
+                                                <option value="Amazonas">Amazonas</option>
+                                                <option value="Bahia">Bahia</option>
+                                                <option value="Ceará">Ceará</option>
+                                                <option value="Distrito Federal">Distrito Federal</option>
+                                                <option value="Espírito Santo">Espírito Santo</option>
+                                                <option value="Goiás">Goiás</option>
+                                                <option value="Maranhão">Maranhão</option>
+                                                <option value="Mato Grosso">Mato Grosso</option>
+                                                <option value="Mato Grosso do Sul">Mato Grosso do Sul</option>
+                                                <option value="Minas Gerais">Minas Gerais</option>
+                                                <option value="Pará">Pará</option>
+                                                <option value="Paraíba">Paraíba</option>
+                                                <option value="Paraná">Paraná</option>
+                                                <option value="Pernambuco">Pernambuco</option>
+                                                <option value="Piauí">Piauí</option>
+                                                <option value="Rio de Janeiro">Rio de Janeiro</option>
+                                                <option value="Rio Grande do Norte">Rio Grande do Norte</option>
+                                                <option value="Rio Grande do Sul">Rio Grande do Sul</option>
+                                                <option value="Rondônia">Rondônia</option>
+                                                <option value="Roraima">Roraima</option>
+                                                <option value="Santa Catarina">Santa Catarina</option>
+                                                <option value="São Paulo">São Paulo</option>
+                                                <option value="Sergipe">Sergipe</option>
+                                                <option value="Tocantins">Tocantins</option>
+                                            </select>
+
+
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">mg/dL</span> -->
+                                            </div>
+                                        </div>
+
+                                        <!-- <br> -->
+                                        <!-- <label>Sexo:</label>
+                                        <select name="sexo" class="form-control">
+                                            <option value="M">Masculino</option>
+                                            <option value="F">Feminino</option>
+                                        </select> -->
+
+                                                                
+                                </div>
+    
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">Nacionalidade</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="nacionalidade">
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">mg/dL</span> -->
+                                            </div>
+                                        </div>
+                                                                
+                                </div>
+    
+                                
+                            </div>
+                            <br>
+                            <div class="form-row">
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">Naturalidade</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"  name="naturalidade">
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">mg/dL</span> -->
+                                            </div>
+                                        </div>
+                                                                
+                                </div>
+    
+                                <div class='col-md'>
+                                
+                                        <label for="validationServerUsername">Numero</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"  name="numero">
+                                            <div class="input-group-prepend">
+                                                <!-- <span class="input-group-text" id="inputGroupPrepend3">mg/dL</span> -->
+                                            </div>
+                                        </div>
+                                                                
+                                </div>
+    
+                                
+                            </div>
+    
+                            <br>
+    
+                            <input type="submit" value="Cadastrar" class="btn btn-success">
+    
+                        </form>
+                    </div>
+                
+                </div>
+            </div>
+        </div>
+        {% comment %} Fim Modal {% endcomment %}
+{% endblock%}
